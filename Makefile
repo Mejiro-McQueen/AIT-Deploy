@@ -23,6 +23,18 @@ nofork: AIT-Core AIT-Project conda-config
 AIT-Core: conda-install
 	@ test ! -d $@ && git clone $(ait_core_url) || true
 
+core-test: AIT-Core conda-config
+	$(CONDA_ACTIVATE) $(project_name)&& \
+	pytest --continue-on-collection-errors ./AIT-Core/tests/
+
+	@ echo
+	@ echo "!!!!!!!!!!!!! WARNING !!!!!!!!!"
+	@ echo "Pytest ran while ignoring continuation errors."
+	@ echo "TestFile is not a valid classname. Issue number TBA"
+	@ echo "Forcing a fail anyway".
+	@ echo
+	@ false
+
 AIT-Project: AIT-GUI AIT-Core conda-install
 	@ test ! -d $(project_name) && git clone $(project_url) || true
 
@@ -47,7 +59,7 @@ define exp
 
 endef
 conda-config: AIT-Project conda-install
-	sed $(exp)environment_template.yml > environment.yml
+	@sed $(exp)environment_template.yml > environment.yml
 
 	@ conda env create -f environment.yml || true
 

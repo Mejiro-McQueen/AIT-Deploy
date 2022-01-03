@@ -5,6 +5,8 @@ dependencies:
   - python=3.7
   - pip
   - pip:
+    - pytest
+    - pytest-cov
     ## Prefer Remote
     - git+PROJECT_URL
     - git+AIT_CORE_URL
