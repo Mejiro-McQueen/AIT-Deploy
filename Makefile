@@ -4,9 +4,6 @@ ait_gui_url:=https://github.com/NASA-AMMOS/AIT-GUI.git
 project_url:=https://github.jpl.nasa.gov/AIT-Project.git #Your project adaptation
 project_name := AIT-Project #The name of the project customization repo and environment in environment.yml
 
-# Controls the cloning of repos that are unecessary for production
-DEV ?= false
-
 PATH := $(PATH):$(HOME)/miniconda3/bin
 SHELL := /bin/bash
 #.SHELLFLAGS = -vc
@@ -31,7 +28,7 @@ AIT-Project: AIT-GUI AIT-Core conda-install
 
 AIT-GUI: AIT-Core
 	# We only need to clone this if we're developing for it.
-	@ $(DEV) && test ! -d $@ && git clone $(ait_gui_url) || true
+	@ test ! -d $@ && git clone $(ait_gui_url) || true
 
 conda-install:
 ifeq ($(shell which conda),)
