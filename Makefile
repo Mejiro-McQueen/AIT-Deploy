@@ -13,8 +13,8 @@ python_version = 3.7
 PATH := $(PATH):$(HOME)/miniconda3/bin
 SHELL = /bin/bash
 
-CONDA_ACTIVATE = @source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
-		; conda activate $(project_name)
+CONDA_ACTIVATE = @ source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
+		; conda activate $(project_name) &> /dev/null
 
 ifdef project_url
 	project_name := $(shell basename $(project_url) .git)
@@ -36,37 +36,29 @@ nofork: virtual-env AIT-Core AIT-Project
 
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
 ifdef project_url
-	@ git clone -q $(project_url) || true
-	@ $(CONDA_ACTIVATE) && pip install ./$(project_name)
+	@ test ! -d $(project_name) && git clone -q $(project_url) || true
+	@ $(CONDA_ACTIVATE) && pip install -q -q ./$(project_name)
 endif
 
 AIT-Core: virtual-env
 	@ test ! -d $@ && git clone -q $(ait_core_url) || true
-	@ $(CONDA_ACTIVATE) && pip install ./$@
+	@ $(CONDA_ACTIVATE) && pip install -q -q ./$@
 
 ifdef TEST
 	$(CONDA_ACTIVATE) && \
-	pytest --continue-on-collection-errors ./AIT-Core/tests/
-
-	@ echo
-	@ echo "!!!!!!!!!!!!! WARNING !!!!!!!!!"
-	@ echo "Pytest ran while ignoring continuation errors."
-	@ echo "TestFile is not a valid classname. Issue number TBA"
-	@ echo "Forcing a fail anyway".
-	@ echo
-	@ false
+	pytest ./AIT-Core/tests/
 endif
 
 AIT-DSN: virtual-env AIT-Core
 ifdef ait_dsn_url
-	@ git clone -q $(ait_dsn_url) || true
-	@ $(CONDA_ACTIVATE) && pip install ./$@
+	@ test ! -d $@ && git clone -q $(ait_dsn_url) || true
+	@ $(CONDA_ACTIVATE) && pip install -q -q ./$@
 endif 
 
 AIT-GUI: virtual-env AIT-Core
 ifdef ait_gui_url
-	@ git clone -q $(ait_gui_url) || true
-	@ $(CONDA_ACTIVATE) && pip install ./$@
+	@ test ! -d $@ && git clone -q $(ait_gui_url) || true
+	@ $(CONDA_ACTIVATE) && pip install -q -q ./$@
 endif
 
 conda:
@@ -79,13 +71,18 @@ endif
 endif
 
 virtual-env: conda
-	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov
+	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov > /dev/null
 	@ $(CONDA_ACTIVATE)  && \
-	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml
+	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
 
 clean: 
 	@ pkill ait-server || true
 ifdef $(project_name)
-	@ conda env remove --name $(project_name) || true
+	@ conda env remove --name $(project_name) || true 
 endif
 	@ conda env remove --name AIT-Core || true
+
+touch-paths: AIT-Core AIT-Project
+	# Run to supress nonexistent path warnings
+	@ $(CONDA_ACTIVATE)  && \
+	ait-create-dirs || true
