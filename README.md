@@ -29,10 +29,12 @@ Make will handle cloning, configuring, and installing necessary repos.
 
 | Variable | Effect |
 | --- | --- |
-|project_url | url to the project AIT Customization and deployment repository. Leave blank or delete to work with AIT defaults.| 
-|miniconda_url | URL to the installer of the miniconda python distribution installer |
-|ait_core_url | url to the AIT-core repository |
-|ait_gui_url | url to the AIT GUI repository |
+|project_url | url to the project AIT Customization and deployment repository. Comment the line to use AIT defaults.| 
+|miniconda_url | URL to the installer of the miniconda python distribution installer. This is mandatory. |
+|ait_core_url | Url to the AIT-core repository. This variable is mandatory.|
+|ait_gui_url | Url to the AIT GUI repository. Comment this line to disable the plugin. |
+|ait_dsn_url | Url to the AIT DSN repository. Comment this line to disable the plugin. |
+|python_version| Version of python to use. Must be compatible across all plugins.
 
 # Docker
 

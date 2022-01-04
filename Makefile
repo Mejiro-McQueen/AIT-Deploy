@@ -3,6 +3,9 @@ project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
 miniconda_url = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 ait_core_url = https://github.com/NASA-AMMOS/AIT-Core.git
 ait_gui_url = https://github.com/NASA-AMMOS/AIT-GUI.git
+ait_dsn_url = https://github.com/NASA-AMMOS/AIT-DSN.git
+
+python_version = 3.7
 
 #.SHELLFLAGS = -vc
 
@@ -31,9 +34,9 @@ nofork: virtual-env AIT-Core AIT-Project
 	$(CONDA_ACTIVATE)&& \
 	ait-server
 
-AIT-Project: virtual-env AIT-GUI AIT-Core
+AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
 ifdef project_url
-	@ test ! -d $(project_name) && git clone -q $(project_url) || true
+	@ git clone -q $(project_url) || true
 	@ $(CONDA_ACTIVATE) && pip install ./$(project_name)
 endif
 
@@ -54,9 +57,17 @@ ifdef TEST
 	@ false
 endif
 
-AIT-GUI: virtual-env AIT-Core
-	@ test ! -d $@ && git clone -q $(ait_gui_url) || true
+AIT-DSN: virtual-env AIT-Core
+ifdef ait_dsn_url
+	@ git clone -q $(ait_dsn_url) || true
 	@ $(CONDA_ACTIVATE) && pip install ./$@
+endif 
+
+AIT-GUI: virtual-env AIT-Core
+ifdef ait_gui_url
+	@ git clone -q $(ait_gui_url) || true
+	@ $(CONDA_ACTIVATE) && pip install ./$@
+endif
 
 conda:
 ifeq ($(shell which conda),)
@@ -68,11 +79,11 @@ endif
 endif
 
 virtual-env: conda
-	@ conda create -y -q --name $(project_name) python=3.7 pytest pytest-cov
+	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov
 	@ $(CONDA_ACTIVATE)  && \
 	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml
 
-clean: conda 
+clean: 
 	@ pkill ait-server || true
 ifdef $(project_name)
 	@ conda env remove --name $(project_name) || true
