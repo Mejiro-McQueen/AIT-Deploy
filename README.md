@@ -14,33 +14,13 @@ Makefile, dockerfile, and Anaconda configuration to quickly deploy AIT projects
 Within the repo, run `make`.
 Make will handle cloning, configuring, and installing necessary repos.
 
-# Development
-
-For development purposes, we usually perfer to use local version of git repos.
-
-## environment_template.yml:
-
-Comment or uncomment the following sections as you see fit.
-This selects which repos to install with pip.
-```
-    ## Prefer Remote
-    - git+PROJECT_URL
-    - git+AIT_CORE_URL
-    - git+AIT_GUI_URL
-
-    ## Prefer Local (Should local be default? Probably Yes)
-    #- ./AIT_PROJECT 
-    #- ./AIT-Core
-    #- ./AIT-GUI
-```
-
 ## Useful Make Targets
 
 | Target | Description |
 | --- | --- |
 |server| Runs ait-server and will fork to the background. Useful for servers.|
 |nofork| Runs ait-server and does not fork. Useful for development, monitoring, testing, docker.|
-|core-test| Run AIT-Core pytest tests| 
+|AIT-Core TEST=true| Run AIT-Core pytest tests| 
 |clean| Kills all ait-server instances and deletes the conda evironment.|
 
 # Customization
@@ -49,10 +29,10 @@ This selects which repos to install with pip.
 
 | Variable | Effect |
 | --- | --- |
-|project_url | url to the project AIT Customization and deployment repository
-|miniconda_url | URL to the installer of the miniconda python distribution installer
-|ait_core_url | url to the AIT-core repository
-|ait_gui_url | url to the AIT GUI repository
+|project_url | url to the project AIT Customization and deployment repository. Leave blank or delete to work with AIT defaults.| 
+|miniconda_url | URL to the installer of the miniconda python distribution installer |
+|ait_core_url | url to the AIT-core repository |
+|ait_gui_url | url to the AIT GUI repository |
 
 # Docker
 
