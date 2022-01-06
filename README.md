@@ -14,14 +14,23 @@ Makefile, dockerfile, and Anaconda configuration to quickly deploy AIT projects
 Within the repo, run `make`.
 Make will handle cloning, configuring, and installing necessary repos.
 
+# Developer Mode
+Run make with the flag DEV=true (i.g. make AIT-Core DEV=true).
+You can optionally modify the DEV variable within the makefile, which lets you omit passing the DEV flag.
+
+## Tox
+Run make with the flags DEV=true TOX=true.
+
 ## Useful Make Targets
 
 | Target | Description |
 | --- | --- |
 |server| Runs ait-server and will fork to the background. Useful for servers.|
 |nofork| Runs ait-server and does not fork. Useful for development, monitoring, testing, docker.|
-|AIT-Core TEST=true| Run AIT-Core pytest tests| 
-|clean| Kills all ait-server instances and deletes the conda evironment.|
+|AIT-Core TEST=true| Run AIT-Core pytest tests|
+|AIT-Core DEV=true| Install AIT-Core with Poetry and other development dependencies|
+|AIT-Core DEV=true TOX=true | Run the AIT-Core Tox pipeline | 
+|clean| Kills all ait-server instances and deletes conda evironments.|
 
 # Customization
 
@@ -34,7 +43,9 @@ Make will handle cloning, configuring, and installing necessary repos.
 |ait_core_url | Url to the AIT-core repository. This variable is mandatory.|
 |ait_gui_url | Url to the AIT GUI repository. Comment this line to disable the plugin. |
 |ait_dsn_url | Url to the AIT DSN repository. Comment this line to disable the plugin. |
-|python_version| Version of python to use. Must be compatible across all plugins.
+|python_version| Version of python to use. Must be compatible across all plugins and AIT-Core. |
+| DEV | When true, installs AIT-Core using Poetry, along with extra dependencies. |
+| TOX | When true, runs tox if DEV is passed. | 
 
 # Docker
 

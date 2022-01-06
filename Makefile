@@ -1,11 +1,14 @@
-#Your project adaptation, otherwise leave blank to work with of AIT defaults (i.e. project_url = )
+#Your project adaptation, otherwise comment the line
 project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
 miniconda_url = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-ait_core_url = https://github.com/NASA-AMMOS/AIT-Core.git
+ait_core_url =  https://github.com/NASA-AMMOS/AIT-Core.git
 ait_gui_url = https://github.com/NASA-AMMOS/AIT-GUI.git
 ait_dsn_url = https://github.com/NASA-AMMOS/AIT-DSN.git
 
 python_version = 3.7
+
+# DEV=true
+# TOX=true
 
 #.SHELLFLAGS = -vc
 
@@ -36,18 +39,30 @@ nofork: virtual-env AIT-Core AIT-Project
 
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
 ifdef project_url
-	@ test ! -d $(project_name) && git clone -q $(project_url) || true
-	@ $(CONDA_ACTIVATE) && pip install -q -q ./$(project_name)
+	 @ test ! -d $(project_name) && git clone -q $(project_url) || true
+	 $(CONDA_ACTIVATE) && pip install ./$(project_name)
 endif
 
 AIT-Core: virtual-env
-	@ test ! -d $@ && git clone -q $(ait_core_url) || true
-	@ $(CONDA_ACTIVATE) && pip install -q -q ./$@
+	 @ test ! -d $@ && git clone -q $(ait_core_url) || true
+ifndef DEV
+	 @ $(CONDA_ACTIVATE) && pip install -q -q ./$@
+endif
 
 ifdef TEST
 	$(CONDA_ACTIVATE) && \
-	pytest ./AIT-Core/tests/
+	pytest -v -s -o log_cli=true ./AIT-Core/tests/
 endif
+
+ifdef DEV
+	@ $(CONDA_ACTIVATE) && cd ./$@ && poetry install > /dev/null && \
+	  pre-commit install > /dev/null && pre-commit install -t pre-push > /dev/null
+ifdef TOX
+	$(CONDA_ACTIVATE) && cd ./$@ && tox
+endif
+endif
+
+
 
 AIT-DSN: virtual-env AIT-Core
 ifdef ait_dsn_url
@@ -65,22 +80,27 @@ conda:
 ifeq ($(shell which conda),)
 
 ifeq ($(wildcard *conda3-*-Linux-x86_64.sh),)
-	@ wget $(miniconda_url)
+	@ wget -q $(miniconda_url)
 endif
-	@ bash *conda3-*-Linux-x86_64.sh -b || true
+	@ bash *conda3-*-Linux-x86_64.sh -b > /dev/null || true
 endif
 
 virtual-env: conda
-	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov > /dev/null
+	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov > /dev/null || true
 	@ $(CONDA_ACTIVATE)  && \
 	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
 
+ifdef DEV
+ifeq ($(shell which poetry),)
+	@ conda install -y -q -c conda-forge --name base poetry mypy flake8 > /dev/null
+	@ echo "Installed poetry globally."
+endif
+endif
+
 clean: 
 	@ pkill ait-server || true
-ifdef $(project_name)
-	@ conda env remove --name $(project_name) || true 
-endif
-	@ conda env remove --name AIT-Core || true
+	@ conda env remove --name $(project_name) &> /dev/null || true 
+	@ conda env remove --name AIT-Core &> /dev/null || true
 
 touch-paths: AIT-Core AIT-Project
 	# Run to supress nonexistent path warnings
