@@ -13,8 +13,8 @@ python_version = 3.7
 #.SHELLFLAGS = -vc
 
 # End of Configuration
-PATH := $(PATH):$(HOME)/miniconda3/bin
-SHELL = /bin/bash
+PATH := $(HOME)/miniconda3/bin:$(PATH)
+SHELL := env PATH=$(PATH) /bin/bash
 
 CONDA_ACTIVATE = @ source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
 		; conda activate $(project_name) &> /dev/null
@@ -29,19 +29,23 @@ ifdef TEST
 	project_name = "AIT-Core"
 endif
 
+
 server: virtual-env AIT-Core AIT-Project
 	$(CONDA_ACTIVATE)&& \
 	ait-server&
+
 
 nofork: virtual-env AIT-Core AIT-Project 
 	$(CONDA_ACTIVATE)&& \
 	ait-server
 
+
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
 ifdef project_url
 	 @ test ! -d $(project_name) && git clone -q $(project_url) || true
-	 $(CONDA_ACTIVATE) && pip install ./$(project_name)
+	 $(CONDA_ACTIVATE) && pip install -q -q ./$(project_name)
 endif
+
 
 AIT-Core: virtual-env
 	 @ test ! -d $@ && git clone -q $(ait_core_url) || true
@@ -63,7 +67,6 @@ endif
 endif
 
 
-
 AIT-DSN: virtual-env AIT-Core
 ifdef ait_dsn_url
 	@ test ! -d $@ && git clone -q $(ait_dsn_url) || true
@@ -76,14 +79,16 @@ ifdef ait_gui_url
 	@ $(CONDA_ACTIVATE) && pip install -q -q ./$@
 endif
 
+
 conda:
-ifeq ($(shell which conda),)
+ifeq ($(shell which conda 2> /dev/null),)
 
 ifeq ($(wildcard *conda3-*-Linux-x86_64.sh),)
 	@ wget -q $(miniconda_url)
 endif
 	@ bash *conda3-*-Linux-x86_64.sh -b > /dev/null || true
 endif
+
 
 virtual-env: conda
 	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov > /dev/null || true
@@ -97,10 +102,12 @@ ifeq ($(shell which poetry),)
 endif
 endif
 
+
 clean: 
 	@ pkill ait-server || true
 	@ conda env remove --name $(project_name) &> /dev/null || true 
 	@ conda env remove --name AIT-Core &> /dev/null || true
+
 
 touch-paths: AIT-Core AIT-Project
 	# Run to supress nonexistent path warnings
