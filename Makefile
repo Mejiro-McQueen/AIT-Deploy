@@ -1,5 +1,5 @@
 #Your project adaptation, otherwise comment the line
-project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
+#project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
 miniconda_url = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 ait_core_url =  https://github.com/NASA-AMMOS/AIT-Core.git
 ait_gui_url = https://github.com/NASA-AMMOS/AIT-GUI.git
@@ -37,7 +37,7 @@ server: virtual-env AIT-Core AIT-Project
 
 nofork: virtual-env AIT-Core AIT-Project 
 	$(CONDA_ACTIVATE)&& \
-	ait-server
+	traceback-with-variables ait-server
 
 
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
@@ -92,6 +92,7 @@ endif
 
 virtual-env: conda
 	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov > /dev/null || true
+	@ conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables > /dev/null	
 	@ $(CONDA_ACTIVATE)  && \
 	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
 
