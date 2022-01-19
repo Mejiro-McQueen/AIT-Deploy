@@ -14,7 +14,7 @@ python_version = 3.7
 
 # End of Configuration
 PATH := $(HOME)/miniconda3/bin:$(PATH)
-SHELL := env PATH=$(PATH) /bin/bash
+SHELL := env PATH=$(PATH) /usr/bin/env bash
 
 CONDA_ACTIVATE = @ source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
 		; conda activate $(project_name) &> /dev/null
@@ -97,9 +97,11 @@ virtual-env: conda
 
 ifdef DEV
 ifeq ($(shell which poetry),)
-	@ conda install -y -q -c conda-forge --name base poetry mypy flake8 > /dev/null
+	# Cache the install
+	@ conda install -y -q -c conda-forge --name  poetry mypy flake8 > /dev/null
 	@ echo "Installed poetry globally."
 endif
+	@ conda install -y -q -c conda-forge --name $(project_name) poetry mypy flake8 > /dev/null
 endif
 
 
