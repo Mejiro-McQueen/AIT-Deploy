@@ -98,7 +98,7 @@ virtual-env: conda
 ifdef DEV
 ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
 	# Cache the install
-	@ conda install -y -q -c conda-forge --name  poetry mypy flake8 > /dev/null
+	@ conda install -y -q -c conda-forge --name base poetry mypy flake8 > /dev/null
 	@ echo "Installed poetry globally."
 endif
 	@ conda install -y -q -c conda-forge --name $(project_name) poetry mypy flake8 > /dev/null
