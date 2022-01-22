@@ -81,7 +81,7 @@ endif
 
 
 conda:
-ifeq ($(shell which conda 2> /dev/null),)
+ifeq ($(shell command -v conda 2>&1 /dev/null),)
 
 ifeq ($(wildcard *conda3-*-Linux-x86_64.sh),)
 	@ wget -q $(miniconda_url)
@@ -96,7 +96,7 @@ virtual-env: conda
 	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
 
 ifdef DEV
-ifeq ($(shell which poetry),)
+ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
 	# Cache the install
 	@ conda install -y -q -c conda-forge --name  poetry mypy flake8 > /dev/null
 	@ echo "Installed poetry globally."
