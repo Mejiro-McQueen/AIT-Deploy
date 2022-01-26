@@ -8,6 +8,7 @@ Makefile, dockerfile, and Anaconda configuration to quickly deploy AIT projects
 - git
 - bash
 - wget
+- A web browser (For AIT-GUI)
 
 # Production Deployment
 
@@ -25,6 +26,7 @@ Run make with the flags DEV=true TOX=true.
 
 | Target | Description |
 | --- | --- |
+| interactive | Runs ait-server, simulators, and firefox
 |server| Runs ait-server and will fork to the background. Useful for servers.|
 |nofork| Runs ait-server and does not fork. Useful for development, monitoring, testing, docker.|
 |AIT-Core TEST=true| Run AIT-Core pytest tests|

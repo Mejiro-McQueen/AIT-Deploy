@@ -1,9 +1,9 @@
 #Your project adaptation, otherwise comment the line
-project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
+#project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
 miniconda_url = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-ait_core_url = git@github.com:Mejiro-McQueen/AIT-Core.git
-ait_gui_url = git@github.com:Mejiro-McQueen/AIT-GUI.git
-ait_dsn_url = git@github.com:Mejiro-McQueen/AIT-DSN.git
+ait_core_url =  https://github.com/NASA-AMMOS/AIT-Core.git
+ait_gui_url = https://github.com/NASA-AMMOS/AIT-GUI.git
+ait_dsn_url = https://github.com/NASA-AMMOS/AIT-DSN.git
 
 python_version = 3.7
 
@@ -106,7 +106,7 @@ endif
 endif
 
 
-clean: 
+clean: stop_sims 
 	@ pkill ait-server || true
 	@ conda env remove --name $(project_name) &> /dev/null || true 
 	@ conda env remove --name AIT-Core &> /dev/null || true
@@ -117,15 +117,17 @@ touch-paths: AIT-Core AIT-Project
 	@ $(CONDA_ACTIVATE)  && \
 	ait-create-dirs || true
 
-udp_forward_tcp:
-	@ python $@.py localhost:9999 localhost:42444
 
 start_sims:
 	/opt/sunrise/startupGse.sh
 	/mnt/fsw/./startup.sh
-	./udp_forward_tcp.py
+
 
 stop_sims:
 	/opt/sunrise/shutdownGse.sh
 	/mnt/fsw/./shutdown.sh
 
+
+interactive: server start_sims
+	echo "Starting AIT Server and Sims!"
+	xdg-open http://localhost:8080
