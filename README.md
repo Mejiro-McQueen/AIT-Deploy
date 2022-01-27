@@ -32,7 +32,7 @@ Run make with the flags DEV=true TOX=true.
 |AIT-Core TEST=true| Run AIT-Core pytest tests|
 |AIT-Core DEV=true| Install AIT-Core with Poetry and other development dependencies|
 |AIT-Core DEV=true TOX=true | Run the AIT-Core Tox pipeline | 
-|clean| Kills all ait-server instances and deletes conda evironments.|
+|clean| Kills all ait-server instances, sims, and deletes conda evironments.|
 
 # Customization
 
