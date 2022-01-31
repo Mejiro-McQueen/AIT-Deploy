@@ -16,6 +16,11 @@ python_version = 3.7
 PATH := $(HOME)/miniconda3/bin:$(PATH)
 SHELL := env PATH=$(PATH) /usr/bin/env bash
 
+KMC_CLIENT := /ammos/kmc-crypto-client/lib/python3.8/site-packages
+
+
+PYTHONPATH += ':$(KMC_CLIENT)'
+
 CONDA_ACTIVATE = @ source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
 		; conda activate $(project_name) &> /dev/null
 
@@ -93,7 +98,7 @@ endif
 virtual-env: conda
 	@ conda create -y -q --name $(project_name) python=$(python_version) pytest pytest-cov > /dev/null || true
 	@ $(CONDA_ACTIVATE)  && \
-	conda env config vars set AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
+	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
 
 ifdef DEV
 ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
