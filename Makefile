@@ -1,9 +1,9 @@
 #Your project adaptation, otherwise comment the line
-#project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
+project_url = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
 miniconda_url = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-ait_core_url =  https://github.com/NASA-AMMOS/AIT-Core.git
-ait_gui_url = https://github.com/NASA-AMMOS/AIT-GUI.git
-ait_dsn_url = https://github.com/NASA-AMMOS/AIT-DSN.git
+ait_core_url = git@github.com:Mejiro-McQueen/AIT-Core.git 
+ait_gui_url = git@github.com:Mejiro-McQueen/AIT-GUI.git 
+ait_dsn_url = git@github.com:Mejiro-McQueen/AIT-DSN.git 
 
 python_version = 3.8
 
@@ -24,7 +24,10 @@ PYTHONPATH = $(KMC_CLIENT)
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
 		; conda activate $(project_name) &> /dev/null
 
-#export LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 python
+
+##export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/libcrypto.so.1.1
+
+#export LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 conda python
 
 ifdef project_url
 	project_name := $(shell basename $(project_url) .git)
@@ -39,19 +42,21 @@ endif
 
 server: virtual-env AIT-Core AIT-Project
 	$(CONDA_ACTIVATE)&& \
-	export LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 python && \
-	ait-server&
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
 
 
 nofork: virtual-env AIT-Core AIT-Project 
 	$(CONDA_ACTIVATE)&& \
-	export LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 python && \
-	traceback-with-variables ait-server
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-with-variables ait-server
+
 
 shell: virtual-env AIT-Core
 	$(CONDA_ACTIVATE)&& \
-	export LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 python && \
-	bash python
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash -c python \
+
+
+kmc_nofork: create_db nofork
+
 
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
 ifdef project_url
@@ -119,7 +124,12 @@ endif
 endif
 
 
-clean: stop_sims 
+create_db:
+	mysql -u root < ./sql_scripts/create_sadb.sql | true
+	mysql -u root < ./sql_scripts/create_sadb_jpl_unit_test_security_associations.sql | true
+
+
+clean: stop_sims clean_db
 	pkill ait-server || true
 	conda env remove --name $(project_name) &> /dev/null || true 
 	conda env remove --name AIT-Core &> /dev/null || true
@@ -141,6 +151,13 @@ stop_sims:
 	/mnt/fsw/./shutdown.sh | true
 
 
+clean_db:
+	mysql -u root < ./sql_scripts/delete_sadb.sql | true
+
+
 interactive: server start_sims
 	echo "Starting AIT Server and Sims!"
 	xdg-open http://localhost:8080
+
+
+kmc_interactive: create_db interactive
