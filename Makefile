@@ -25,10 +25,6 @@ CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda act
 		; conda activate $(project_name) &> /dev/null
 
 
-##export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/libcrypto.so.1.1
-
-#export LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 conda python
-
 ifdef project_url
 	project_name := $(shell basename $(project_url) .git)
 else
@@ -50,12 +46,15 @@ nofork: virtual-env AIT-Core AIT-Project
 	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-with-variables ait-server
 
 
-shell: virtual-env AIT-Core
+kmc_shell: virtual-env AIT-Core
 	$(CONDA_ACTIVATE)&& \
 	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash -c python \
 
 
 kmc_nofork: create_db nofork
+
+
+kmc_server: create_db server 
 
 
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
@@ -126,7 +125,7 @@ endif
 
 create_db:
 	mysql -u root < ./sql_scripts/create_sadb.sql | true
-	mysql -u root < ./sql_scripts/create_sadb_jpl_unit_test_security_associations.sql | true
+	mysql -u root < ./create_sadb_ait_test_security_associations.sql | true
 
 
 clean: stop_sims clean_db
