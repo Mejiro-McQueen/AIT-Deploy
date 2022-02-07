@@ -125,7 +125,7 @@ endif
 
 create_db:
 	mysql -u root < ./sql_scripts/create_sadb.sql | true
-	mysql -u root < ./create_sadb_ait_test_security_associations.sql | true
+	mysql -u root < ./sql_scripts/create_sadb_ait_test_security_associations.sql | true
 
 
 clean: stop_sims clean_db
