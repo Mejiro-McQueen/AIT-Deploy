@@ -174,13 +174,14 @@ touch-paths: AIT-Core AIT-Project
 
 
 start_sims:
+	sleep 5
 	/opt/sunrise/startupGse.sh
-	/mnt/fsw/./startup.sh
+	/mnt/fsw/startup.sh
 
 
 stop_sims:
-	/opt/sunrise/shutdownGse.sh | true
-	/mnt/fsw/./shutdown.sh | true
+	/opt/sunrise/shutdownGse.sh
+	/mnt/fsw/shutdown.sh
 
 
 clean_db:
