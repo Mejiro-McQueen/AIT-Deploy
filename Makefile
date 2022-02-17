@@ -173,15 +173,15 @@ touch-paths: AIT-Core AIT-Project
 	ait-create-dirs || true
 
 
-start_sims:
+start_sims: start_sim_tunnel
 	sleep 5
 	/opt/sunrise/startupGse.sh
 	/mnt/fsw/startup.sh
 
 
 stop_sims:
-	/opt/sunrise/shutdownGse.sh
-	/mnt/fsw/shutdown.sh
+	/opt/sunrise/shutdownGse.sh | true
+	/mnt/fsw/shutdown.sh | true
 
 
 clean_db:
@@ -195,3 +195,5 @@ interactive: server start_sims
 
 kmc_interactive: create_db interactive
 
+start_sim_tunnel:
+	ssh -g -L -f 42401:localhost:42401 -N alma-ait
