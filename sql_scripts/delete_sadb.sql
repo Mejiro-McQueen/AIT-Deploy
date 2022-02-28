@@ -1,1 +1,2 @@
 DROP DATABASE IF EXISTS sadb;
+DROP USER IF EXISTS 'sadb_user';
