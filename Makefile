@@ -1,9 +1,9 @@
 ## Your project adaptation, otherwise comment the line
 #PROJECT_URL = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
 MINICONDA_URL = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-AIT_CORE_URL = git@github.com:Mejiro-McQueen/AIT-Core.git
-AIT_GUI_URL = git@github.com:Mejiro-McQueen/AIT-GUI.git
-AIT_DSN_URL = git@github.com:Mejiro-McQueen/AIT-DSN.git
+AIT_CORE_URL = https://github.com/Mejiro-McQueen/AIT-Core.git
+AIT_GUI_URL = https://github.com/Mejiro-McQueen/AIT-GUI.git
+AIT_DSN_URL = https://github.com/Mejiro-McQueen/AIT-DSN.git
 
 
 ## Choose a branch for each component 
