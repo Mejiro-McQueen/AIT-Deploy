@@ -198,3 +198,11 @@ kmc_interactive: create_db interactive
 
 start_sim_tunnel:
 	ssh -g -L 42401:localhost:42401 -N alma-ait
+
+open-port:
+	sudo firewall-cmd --zone=public --permanent --add-port=8080/tcp
+	sudo firewall-cmd --reload
+
+close-port:
+	sudo firewall-cmd --zone=public --permanent --remove-port=8080/tcp
+	sudo firewall-cmd --reload
