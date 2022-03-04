@@ -32,7 +32,7 @@ crypto: mtls crypto-store crypto-setup hack-fix-tomcat-cert-pw
 
 crypto-store:
 	for num in $(K) ; do \
-	keytool -genseckey -alias test/$$num -keyalg aes -keysize 256 -keystore crypto-keystore.p12 -storetype PKCS12 -storepass env:CRYPTO_PASS; \
+	keytool -genseckey -alias test/$$num -keyalg aes -keysize 256 -keystore crypto-keystore.p12 -storetype PKCS12 -storepass $(CRYPTO_PASS); \
 	done
 #TODO EXPORT KEYS
 # openssl pkcs12 -in crypto-keystore.p12 -nokeys -out cert.pem
