@@ -3,7 +3,7 @@ export CSR_PASS=testtest
 export MTLS_PASS=testtest
 export CRYPTO_PASS=testtest
 
-K?={1}
+K?=130 131
 
 SUBJ= "/C=US/ST=California/L=Pasadena/O=Jet Propulsion Laboratory/OU=<Project>/CN=cmdenc-user/emailAddress=<email address>"
 
@@ -32,15 +32,21 @@ crypto: mtls crypto-store crypto-setup hack-fix-tomcat-cert-pw
 
 crypto-store:
 	for num in $(K) ; do \
-	keytool -genseckey -alias test/$$num -keyalg aes -keysize 256 -keystore crypto-keystore.p12 -storetype PKCS12 -storepass $(CRYPTO_PASS); \
+	keytool -genseckey -alias kmc/test/key$$num -keyalg aes -keysize 256 -keystore crypto-keystore.p12 -storetype PKCS12 -storepass $(CRYPTO_PASS); \
 	done
 #TODO EXPORT KEYS
 # openssl pkcs12 -in crypto-keystore.p12 -nokeys -out cert.pem
-# openssl pkcs12 -in crypto-keystore.p12 -nodes -password env:CRYPTO_PASS -nocerts -out key.pem 
+# openssl pkcs12 -in crypto-keystore.p12 -nodes -password env:CRYPTO_PASS -nocerts -out key.pem
+	sudo cp -p crypto-keystore.p12 /ammos/kmc-crypto-service/etc/crypto-keystore.p12
+	sudo chown crypto:crypto /ammos/kmc-crypto-service/etc/crypto-keystore.p12
+	sudo chmod 400 /ammos/kmc-crypto-service/etc/crypto-keystore.p12
+
 
 crypto-setup:
 	sudo cp -p /ammos/kmc-crypto-service/etc/kmc-crypto.cfg /ammos/kmc-crypto-service/etc/kmc-crypto.cfg.bak
 	sudo sed -i 's/#crypto_keystore_type=PKCS12/crypto_keystore_type=PKCS12/g' /ammos/kmc-crypto-service/etc/kmc-crypto.cfg
+	sudo sed -i 's|#crypto_keystore_location=/ammos/kmc-crypto-service/etc/kmc-all-keys.p12|crypto_keystore_location=/ammos/kmc-crypto-service/etc/crypto-keystore.p12|g' /ammos/kmc-crypto-service/etc/kmc-crypto.cfg
+	sudo sed -i 's|keystore_file=/ammos/etc/pki/tls/private/ammos-server-keystore.jks|keystore_file=/ammos/etc/pki/tls/private/ammos-server-keystore.p12|g' /ammos/kmc-crypto-service/etc/kmc-crypto.cfg
 	sudo sed -i 's/#crypto_keystore_password=kmcstorepass/crypto_keystore_password=$(CRYPTO_PASS)/g' /ammos/kmc-crypto-service/etc/kmc-crypto.cfg
 	sudo sed -i 's/keystore_password=changeit/keystore_password=$(MTLS_PASS)/g' /ammos/kmc-crypto-service/etc/kmc-crypto.cfg
 
@@ -95,7 +101,7 @@ change-java-opts:
 	sudo cp -p /etc/sysconfig/kmc-crypto-service /etc/sysconfig/kmc-crypto-service.bak
 	sudo sed -i "s/-Djavax.net.ssl.keyStorePassword='changeit'/-Djavax.net.ssl.keyStorePassword='$(MTLS_PASS)'/g" /etc/sysconfig/kmc-crypto-service
 	sudo sed -i "s/-Djavax.net.ssl.trustStorePassword='changeit'/-Djavax.net.ssl.trustStorePassword='$(MTLS_PASS)'/g" /etc/sysconfig/kmc-crypto-service
-	sudo sed -i "s#-Djavax.net.ssl.trustStore=/ammos/etc/pki/tls/certs/ammos-truststore.jks#-Djavax.net.ssl.trustStore=/ammos/etc/pki/tls/certs/ammos-mtls-keystore.jks#g" /etc/sysconfig/kmc-crypto-service
+	sudo sed -i "s#-Djavax.net.ssl.trustStore=/ammos/etc/pki/tls/certs/ammos-truststore.jks#-Djavax.net.ssl.trustStore=/ammos/etc/pki/tls/certs/ammos-mtls-keystore.jks#g" /etc/sysconfig/kmc-crypto-service #MIGHT NOT BE RIGHT
 	#HACK Complains about bad password if the keystore doesn't actually exist
 	sudo sed -i 's|/ammos/etc/pki/tls/private/ammos-server-keystore.p12 /ammos/etc/pki/tls/certs/ammos-truststore.jks"| /ammos/etc/pki/tls/private/ammos-server-keystore.p12 | g' /etc/sysconfig/kmc-crypto-service
 clean: undo-hack-tomcat-cer-pw
@@ -105,6 +111,7 @@ clean: undo-hack-tomcat-cer-pw
 	sudo rm -rf /ammos/etc/pki/tls/private/ammos-server-keystore.p12
 	sudo rm -rf /ammos/etc/pki/tls/private/ammos-mtls-keystore.jks
 	sudo rm -rf /ammos/etc/pki/tls/certs/ammos-mtls-keystore.jks
+	sudo rm -rf /ammos/kmc-crypto-service/etc/crypto-keystore.p12
 
 	sudo cp -p /etc/sysconfig/kmc-crypto-service.bak /etc/sysconfig/kmc-crypto-service
 	sudo cp -p /ammos/kmc-crypto-service/etc/kmc-crypto.cfg.bak /ammos/kmc-crypto-service/etc/kmc-crypto.cfg #MOVE ME
