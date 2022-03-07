@@ -34,6 +34,8 @@ PATH := $(HOME)/miniconda3/bin:$(PATH)
 SHELL := env PATH=$(PATH) /usr/bin/env bash
 PYTHONPATH = $(KMC_CLIENT)
 
+AWS = $(findstring ec2, $(shell cat /sys/hypervisor/uuid))
+
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate \
 		; conda activate $(project_name) &> /dev/null
 
@@ -162,7 +164,7 @@ create_db:
 	mysql -u root < ./sql_scripts/create_user.sql | true
 
 
-clean: stop_sims clean_db
+clean: clean_db
 	pkill ait-server || true
 	conda env remove --name $(project_name) &> /dev/null || true 
 	conda env remove --name AIT-Core &> /dev/null || true
@@ -200,9 +202,13 @@ start_sim_tunnel:
 	ssh -g -L 42401:localhost:42401 -N alma-ait
 
 open-port:
+ifneq ($(AWS), ec2)
 	sudo firewall-cmd --zone=public --permanent --add-port=8080/tcp
 	sudo firewall-cmd --reload
+endif
 
 close-port:
+ifneq ($(AWS), ec2)
 	sudo firewall-cmd --zone=public --permanent --remove-port=8080/tcp
 	sudo firewall-cmd --reload
+endif

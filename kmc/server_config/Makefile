@@ -6,11 +6,13 @@ MGSS_REPO := $(JPLNET)
 
 MANIFEST := MGSS-ammos-system-current-A31.0.sunrisekmcdev.3.noarch
 
+AWS = $(findstring ec2, $(shell cat /sys/hypervisor/uuid))
+
 .PHONY : all
 all : install-manifest open-port
 
 config-mgss-repo: 
-	sudo dnf install -y $(MGSS_REPO) 
+	sudo rpm -Uvh $(MGSS_REPO) | true
 
 install-manifest: install-jdk config-mgss-repo
 	sudo dnf -y install $(MANIFEST)
@@ -28,12 +30,16 @@ uninstall-jdk:
 	sudo dnf remove -y java-11-openjdk-headless.x86_64
 
 open-port:
+ifneq ($(AWS), ec2)
 	sudo firewall-cmd --zone=public --permanent --add-port=8443/tcp
 	sudo firewall-cmd --reload
+endif
 
 close-port:
+ifneq ($(AWS), ec2)
 	sudo firewall-cmd --zone=public --permanent --remove-port=8443/tcp
 	sudo firewall-cmd --reload
+endif
 
 clean: close-port uninstall-manifest uninstall-mgss-repo
 	@echo
