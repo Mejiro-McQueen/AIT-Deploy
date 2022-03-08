@@ -28,7 +28,7 @@ fix-target:
 
 #---------------CRYPTO SERVER--------------------#
 
-crypto: mtls crypto-store crypto-setup hack-fix-tomcat-cert-pw
+crypto: mtls crypto-store crypto-setup hack-fix-tomcat-cert-pw dump_keys
 
 crypto-store:
 	for num in $(K) ; do \
@@ -112,6 +112,7 @@ clean: undo-hack-tomcat-cer-pw
 	sudo rm -rf /ammos/etc/pki/tls/private/ammos-mtls-keystore.jks
 	sudo rm -rf /ammos/etc/pki/tls/certs/ammos-mtls-keystore.jks
 	sudo rm -rf /ammos/kmc-crypto-service/etc/crypto-keystore.p12
+	sudo rm -rf /ammos/kmc-crypto-service/etc/crypto-keystore.jks
 
 	sudo cp -p /etc/sysconfig/kmc-crypto-service.bak /etc/sysconfig/kmc-crypto-service
 	sudo cp -p /ammos/kmc-crypto-service/etc/kmc-crypto.cfg.bak /ammos/kmc-crypto-service/etc/kmc-crypto.cfg #MOVE ME
@@ -125,3 +126,8 @@ hack-fix-tomcat-cert-pw:
 
 undo-hack-tomcat-cer-pw:
 	sudo cp -p /opt/ammos/kmc-crypto-service/cse/3.0.0/tomcat9/conf/server.xml.bak /opt/ammos/kmc-crypto-service/cse/3.0.0/tomcat9/conf/server.xml
+
+
+dump_keys:
+	keytool -v -importkeystore -srckeystore crypto-keystore.p12 -srcstoretype PKCS12 -srcstorepass $(CRYPTO_PASS) -destkeystore crypto-keystore.jks -deststoretype JCEKS -deststorepass $(CRYPTO_PASS)
+	./keydump.py ./crypto-keystore.jks $(CRYPTO_PASS)
