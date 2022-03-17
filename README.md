@@ -79,10 +79,10 @@ ait-server will automatically start and fork on the next reboot.
 You can now restart the EC2 instance or start ait-server by running run `make` and then logging out of the instance.
 
 # Ports
-| Port | Protocol | Purpose | Direction |
-| --- | --- | --- | --- |
-| 8080 | TCP | AIT-GUI | In |
-| 8443 | TCP + mtls | KMC-Crypto-Service | In/Out |
-| 3306 | TCP + mtls-option | KMC-Crypto-Client mariadb | In/Out |
-| ???? | UDP/TCP | Customizable AIT ports | In/Out |
+| Port | Protocol | Purpose |
+| --- | --- | --- |
+| 8080 | TCP | AIT-GUI |
+| 8443 | TCP + mtls | KMC-Crypto-Service |
+| 3306 | TCP + mtls-option | KMC-Crypto-Client mariadb | 
+| ???? | UDP/TCP | Customizable AIT ports |
 
