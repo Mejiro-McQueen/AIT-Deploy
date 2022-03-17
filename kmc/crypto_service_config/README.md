@@ -11,8 +11,9 @@
 # Useful Targets
 
 | Target | Description |
+|---|---|
 | | Creates and copies necessary keys, and server configs. The server will be enabled and started. |
-| dumps-keys | Calls a python script which will copy the crypto-keystore.p12 keystore as a JCEKS keystore. The python script will then dump the JCEKS keystore as a CSV file. This target must be called explicitly. |
+| dump-keys | Calls a python script which will copy the crypto-keystore.p12 keystore as a JCEKS keystore. The python script will then dump the JCEKS keystore as a CSV file. This target must be called explicitly. |
 | clean | Deletes all keys and restores server to its original configuration; |
 | crypto-keystore | Just generate the crypto-keystore.p12 file. Keys do not seem to be overwritten if they already exist. |
 
@@ -30,6 +31,7 @@ The default values are sufficient for delpoyment.
 | LOW_KEY_RANGE | This is the first crypto key number to generate. Set to 1 by default. |
 | HIGH_KEY_RANGE | This is the last Crypto key number to generate. Set to 2 by default | 
 | KEY_ALIAS_PREFIX | The alias prefix for your keys, example setting this to kmc/test/key will generate the keys {kmc/test/key1 ... kmc/test/key2} | 
+|---|---|
 | SUBJ | Extra info required for self signed cert. Not very important.| 
 
 |File | Effect| 
