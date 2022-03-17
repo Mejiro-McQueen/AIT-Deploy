@@ -32,7 +32,7 @@ KMC_CLIENT := /ammos/kmc-crypto-client/lib/python$(PYTHON_VERSION)/site-packages
 
 PATH := $(HOME)/miniconda3/bin:$(PATH)
 SHELL := env PATH=$(PATH) /usr/bin/env bash
-PYTHONPATH = $(KMC_CLIENT)
+PYTHONPATH := $(KMC_CLIENT):$(PYTHONPATH)
 
 AWS = $(findstring ec2, $(shell cat /sys/hypervisor/uuid))
 
@@ -50,15 +50,15 @@ ifdef TEST
 	project_name = "AIT-Core"
 endif
 
-
+#--------- Important Targets -------------#
 server: virtual-env AIT-Core AIT-Project
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
+	ait-server&
 
 
 nofork: virtual-env AIT-Core AIT-Project 
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-with-variables ait-server
+	traceback-with-variables ait-server
 
 
 kmc_shell: virtual-env AIT-Core
@@ -67,11 +67,26 @@ kmc_shell: virtual-env AIT-Core
 
 
 kmc_nofork: create_db nofork
+	$(CONDA_ACTIVATE)&& \
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-wth-variables ait-server
 
 
-kmc_server: create_db server 
+kmc_server:
+	$(CONDA_ACTIVATE)&& \
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server
 
+create_db:
+	$(MAKE) -C ./sql_scripts
 
+clean_db:
+	$(MAKE) -C ./sql_scripts clean
+
+clean: clean_db
+	pkill ait-server || true
+	conda env remove --name $(project_name) &> /dev/null || true 
+	conda env remove --name AIT-Core &> /dev/null || true
+
+#--------- AUX TARGETS -------------#
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
 ifdef PROJECT_URL
 	 test ! -d $(project_name) && git clone -q --branch $(PROJECT_BRANCH) $(PROJECT_URL) || true
@@ -158,18 +173,8 @@ endif
 endif
 
 
-create_db:
-	mysql -u root < ./sql_scripts/create_sadb.sql | true
-	mysql -u root < ./sql_scripts/create_sadb_ait_test_security_associations.sql | true
-	mysql -u root < ./sql_scripts/create_user.sql | true
 
-
-clean: clean_db
-	pkill ait-server || true
-	conda env remove --name $(project_name) &> /dev/null || true 
-	conda env remove --name AIT-Core &> /dev/null || true
-
-
+#----------------- Convenience Targets (May be deleted soon)-------------#
 touch-paths: AIT-Core AIT-Project
 # Run to supress nonexistent path warnings
 	$(CONDA_ACTIVATE)  && \
@@ -178,25 +183,20 @@ touch-paths: AIT-Core AIT-Project
 
 start_sims:
 	sleep 5
-	/opt/sunrise/startupGse.sh
-	/mnt/fsw/startup.sh
-
+	cd /opt/sunrise/ && ./startupGse.sh
+	cd /mnt/fsw/ && ./startup.sh
 
 stop_sims:
-	/opt/sunrise/shutdownGse.sh | true
-	/mnt/fsw/shutdown.sh | true
-
-
-clean_db:
-	mysql -u root < ./sql_scripts/delete_sadb.sql | true
-
+	cd /opt/sunrise/ && ./shutdownGse.sh
+	cd /mnt/fsw/ && ./shutdown.sh
 
 interactive: server start_sims
 	echo "Starting AIT Server and Sims!"
 	xdg-open http://localhost:8080
 
-
-kmc_interactive: create_db interactive
+kmc_interactive: kmc_nofork start_sims
+	echo "Starting AIT Server and Sims!"
+	xdg-open http://localhost:8080
 
 start_sim_tunnel:
 	ssh -g -L 42401:localhost:42401 -N alma-ait
