@@ -34,9 +34,10 @@ def main():
         dump.append([sk.alias, sk.algorithm, sk.key_size, keystr, md5])
 
     with open('crypto-keystore.csv', 'w') as csvfile:
-        spamwriter = csv.writer(csvfile)
-        spamwriter.writerow(columns)
-        spamwriter.writerows(dump)
+        writer = csv.writer(csvfile)
+        writer.writerow(columns)
+        writer.writerows(dump)
+
 
 if __name__=="__main__":
     main()

@@ -1,6 +1,15 @@
 # AIT-Deploy
 
-Makefile, dockerfile, and Anaconda configuration to quickly deploy AIT projects
+Makefile, dockerfile, and Anaconda configuration to quickly deploy AIT projects.
+
+# Introduction
+This script is a collection of Makefiles in three layers. 
+1. The Makefile at the root of the repo is for configurating and deploying AIT.
+2. The Makefile in sql_scripts is for the configuration of the kmc SADB database tables.
+[SQL Config](sql_scripts/README.md)
+
+3. The Makefiles in the kmc directory are for the configuration and deployment of KMC-Crypto-Service and KMC-Crypto-Client.
+[KMC Deployment](kmc/README.md)
 
 # Dependencies
 
@@ -9,7 +18,9 @@ Makefile, dockerfile, and Anaconda configuration to quickly deploy AIT projects
 - bash
 - wget
 - A web browser (For AIT-GUI)
-
+- python
+  + pyjks (for key-dump target, not run by default for convenience)
+    
 # Production Deployment
 
 Within the repo, run `make`.
@@ -27,7 +38,7 @@ Run make with the flags DEV=true TOX=true.
 | Target | Description |
 | --- | --- |
 | interactive | Runs ait-server, simulators, and firefox
-|server| Runs ait-server and will fork to the background. Useful for servers.|
+|server| Runs ait-server and will fork to the background. Useful for servers|
 |nofork| Runs ait-server and does not fork. Useful for development, monitoring, testing, docker.|
 |AIT-Core TEST=true| Run AIT-Core pytest tests|
 |AIT-Core DEV=true| Install AIT-Core with Poetry and other development dependencies|
@@ -66,3 +77,12 @@ Add an entry: `@reboot cd ~/AIT_Quick_Deploy/ && make`
 
 ait-server will automatically start and fork on the next reboot.
 You can now restart the EC2 instance or start ait-server by running run `make` and then logging out of the instance.
+
+# Ports
+| Port | Protocol | Purpose | Direction |
+| --- | --- | --- | --- |
+| 8080 | TCP | AIT-GUI | In |
+| 8443 | TCP + mtls | KMC-Crypto-Service | In/Out |
+| 3306 | TCP + mtls-option | KMC-Crypto-Client mariadb | In/Out |
+| ???? | UDP/TCP | Customizable AIT ports | In/Out |
+
