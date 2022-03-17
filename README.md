@@ -86,3 +86,24 @@ You can now restart the EC2 instance or start ait-server by running run `make` a
 | 3306 | TCP + mtls-option | KMC-Crypto-Client mariadb | 
 | ???? | UDP/TCP | Customizable AIT ports |
 
+# FAQ 
+Q: Why not just use git subtree/module? 
+A: Good question, I often ask myself every day. git subtree comming soon!
+
+Q: Why not just use GUIX or NIX? 
+A: Good question, I often ask myself every day. GUIX comming soon!
+
+Q: What distro should I run AIT in? 
+A: Pretty much any, unless you're running KMC, in which case you need a RHEL8.5 compatible distro (Alma, Rocky, etc...)
+
+Q: There seems to be a kernel lock in the RPM. 
+A: I know. 
+
+Q: Can I run AIT+KMC-Crypto-Client in a RHEL8 Docker container? 
+A: No. Kernel lock.
+
+Q: Can the MariaDB be hosted on a third machine? 
+A: Yes. You'll need to modify the sql scripts to point to your box.
+
+Q: My AIT+KMC hangs for a long time when initializing the encrypter plugin, then gives me a 503 authentication error! 
+A: Your firewalls are probably blocking you.
