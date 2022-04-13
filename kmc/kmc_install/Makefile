@@ -1,10 +1,10 @@
-JPLNET := https://tester:g3tpackag3s@asis-repo1.jpl.nasa.gov/testing/asis/rhel8/x86_64/RPMS/MGSS-asis-repo-testing-jplnet-latest.el8.noarch.rpm
+JPLNET := https://ammos:g3tpackag3s@asis-repo1.jpl.nasa.gov/asis/rhel8/x86_64/RPMS/MGSS-asis-repo-release-jplnet-latest.el8.noarch.rpm
 
-MISSION_NET:= https://tester:g3tpackag3s@sajs-repo1.fltops.jpl.nasa.gov/testing/asis/rhel8/x86_64/RPMS/MGSS-asis-repo-testing-fltops-latest.el8.noarch.rpm
+MISSION_NET:= https://ammos:g3tpackag3s@sajs-repo1.fltops.jpl.nasa.gov/asis/rhel8/x86_64/RPMS/MGSS-asis-repo-release-fltops-latest.el8.noarch.rpm
 
 MGSS_REPO := $(JPLNET)
 
-MANIFEST := MGSS-ammos-system-current-A31.0.sunrisekmcdev.3.noarch
+MANIFEST := MGSS-ammos-system-current-A31.0.systestkmccrypto.1.noarch
 
 AWS = $(findstring ec2, $(shell cat /sys/hypervisor/uuid))
 
