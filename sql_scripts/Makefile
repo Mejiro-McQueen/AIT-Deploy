@@ -5,4 +5,4 @@ create_db:
 
 
 clean:
-	mysql -u root < ./sql_scripts/delete_sadb.sql | true
+	mysql -u root < ./delete_sadb.sql | true

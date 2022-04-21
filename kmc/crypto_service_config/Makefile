@@ -14,7 +14,7 @@ export CRYPTO_PASS=testtest
 #Generate from this key number
 LOW_KEY_RANGE = 1
  #Last key number to generate inclusive
-HIGH_KEY_RANGE = 180
+HIGH_KEY_RANGE = 1024
 #prefix for your keys
 KEY_ALIAS_PREFIX = kmc/test/key 
 

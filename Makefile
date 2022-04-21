@@ -63,17 +63,17 @@ nofork: virtual-env AIT-Core AIT-Project
 
 kmc_shell: virtual-env AIT-Core
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash -c python \
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash
 
 
-kmc_nofork: create_db nofork
-	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-wth-variables ait-server
-
-
-kmc_server:
+kmc_nofork: virtual-env AIT-Core AIT-Project
 	$(CONDA_ACTIVATE)&& \
 	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server
+
+
+kmc_server: virtual-env AIT-Core AIT-Project
+	$(CONDA_ACTIVATE)&& \
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
 
 create_db:
 	$(MAKE) -C ./sql_scripts
@@ -182,7 +182,6 @@ touch-paths: AIT-Core AIT-Project
 
 
 start_sims:
-	sleep 5
 	cd /opt/sunrise/ && ./startupGse.sh
 	cd /mnt/fsw/ && ./startup.sh
 
@@ -199,7 +198,8 @@ kmc_interactive: kmc_nofork start_sims
 	xdg-open http://localhost:8080
 
 start_sim_tunnel:
-	ssh -g -L 42401:localhost:42401 -N alma-ait
+	until nc -zw 2 ait 22; do sleep 2; done
+	ssh -v -i /home/ubuntu/.ssh/AIT.pem -g -L 42401:localhost:42401 -N ec2-user@ait
 
 open-port:
 ifneq ($(AWS), ec2)
