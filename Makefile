@@ -12,6 +12,9 @@ AIT_GUI_BRANCH := master
 AIT_DSN_BRANCH := master
 PROJECT_BRANCH := master
 
+## Choose config file
+CONFIG = config.yaml
+
 ## Attempt to switch branches after first clone
 ## Useful for development
 BRANCH_SWITCH = False
@@ -50,30 +53,20 @@ ifdef TEST
 	project_name = "AIT-Core"
 endif
 
+AIT_CONFIG := ./$(project_name)/config/$(CONFIG)
+
 #--------- Important Targets -------------#
-server: virtual-env AIT-Core AIT-Project
+server: virtual-env
 	$(CONDA_ACTIVATE)&& \
-	ait-server&
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
 
-
-nofork: virtual-env AIT-Core AIT-Project 
-	$(CONDA_ACTIVATE)&& \
-	traceback-with-variables ait-server
-
-
-kmc_shell: virtual-env AIT-Core
+shell: virtual-env AIT-Core
 	$(CONDA_ACTIVATE)&& \
 	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash
 
-
-kmc_nofork: virtual-env AIT-Core AIT-Project
+nofork: virtual-env AIT-Core AIT-Project
 	$(CONDA_ACTIVATE)&& \
 	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server
-
-
-kmc_server: virtual-env AIT-Core AIT-Project
-	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
 
 create_db:
 	$(MAKE) -C ./sql_scripts
@@ -161,7 +154,7 @@ virtual-env: conda
 	conda create -y -q --name $(project_name) python=$(PYTHON_VERSION) pytest pytest-cov cffi > /dev/null || true
 	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables > /dev/null	
 	$(CONDA_ACTIVATE)  && \
-	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=./$(project_name)/config/config.yaml > /dev/null
+	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=$(AIT_CONFIG) > /dev/null
 
 ifdef DEV
 ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
@@ -179,7 +172,6 @@ touch-paths: AIT-Core AIT-Project
 # Run to supress nonexistent path warnings
 	$(CONDA_ACTIVATE)  && \
 	ait-create-dirs || true
-
 
 start_sims:
 	cd /opt/sunrise/ && ./startupGse.sh
