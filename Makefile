@@ -13,7 +13,7 @@ AIT_DSN_BRANCH := master
 PROJECT_BRANCH := master
 
 ## Choose config file
-CONFIG = config.yaml
+CONFIG ?= config.yaml
 
 ## Attempt to switch branches after first clone
 ## Useful for development
