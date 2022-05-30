@@ -7,3 +7,6 @@
 [submodule "AIT-GUI"]
 	path = AIT-GUI
 	url = git@github.com:Mejiro-McQueen/AIT-GUI.git
+[submodule "SunRISE-AIT"]
+	path = SunRISE-AIT
+	url = git@github.jpl.nasa.gov:SunRISE-Ops/SunRISE-AIT.git
