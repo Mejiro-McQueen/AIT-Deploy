@@ -1,16 +1,16 @@
 ## Your project adaptation, otherwise comment the line
-#PROJECT_URL = https://github.jpl.nasa.gov/SunRISE-Ops/SunRISE-AIT.git
+PROJECT_URL = git@github.jpl.nasa.gov:SunRISE-Ops/SunRISE-AIT.git
 MINICONDA_URL = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-AIT_CORE_URL = https://github.com/Mejiro-McQueen/AIT-Core.git
-AIT_GUI_URL = https://github.com/Mejiro-McQueen/AIT-GUI.git
-AIT_DSN_URL = https://github.com/Mejiro-McQueen/AIT-DSN.git
+AIT_CORE_URL = git@github.com:Mejiro-McQueen/AIT-Core.git 
+AIT_GUI_URL =  git@github.com:Mejiro-McQueen/AIT-GUI.git 
+AIT_DSN_URL =  git@github.com:Mejiro-McQueen/AIT-DSN.git 
 
 
 ## Choose a branch for each component 
 AIT_CORE_BRANCH := master
 AIT_GUI_BRANCH := master
 AIT_DSN_BRANCH := master
-PROJECT_BRANCH := master
+PROJECT_BRANCH := develop
 
 ## Choose config file
 CONFIG ?= config.yaml
@@ -65,16 +65,20 @@ shell: virtual-env AIT-Core
 	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash
 
 nofork: virtual-env AIT-Core AIT-Project
+#	until nc -vzw 2 fss 43000; do sleep 2; done
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server
+	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-with-variables ait-server
 
-create_db:
-	$(MAKE) -C ./sql_scripts
+sadb-auth:
+	$(MAKE) -C ./sql_scripts auth-db
 
-clean_db:
+sadb-enc:
+	$(MAKE) -C ./sql_scripts enc-db
+
+sadb-clean:
 	$(MAKE) -C ./sql_scripts clean
 
-clean: clean_db
+clean: 
 	pkill ait-server || true
 	conda env remove --name $(project_name) &> /dev/null || true 
 	conda env remove --name AIT-Core &> /dev/null || true
@@ -152,7 +156,7 @@ endif
 
 virtual-env: conda
 	conda create -y -q --name $(project_name) python=$(PYTHON_VERSION) pytest pytest-cov cffi > /dev/null || true
-	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables > /dev/null	
+	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables influxdb > /dev/null	
 	$(CONDA_ACTIVATE)  && \
 	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=$(AIT_CONFIG) > /dev/null
 
@@ -190,8 +194,8 @@ kmc_interactive: kmc_nofork start_sims
 	xdg-open http://localhost:8080
 
 start_sim_tunnel:
-	until nc -zw 2 ait 22; do sleep 2; done
-	ssh -v -i /home/ubuntu/.ssh/AIT.pem -g -L 42401:localhost:42401 -N ec2-user@ait
+	until nc -vzw 2 fss 22; do sleep 2; done
+	ssh -v -i /home/ec2-user/.ssh/AIT.pem -g -R fss:42401:localhost:42401 -fN ubuntu@fss
 
 open-port:
 ifneq ($(AWS), ec2)
