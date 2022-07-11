@@ -29,6 +29,7 @@ PYTHON_VERSION = 3.8
 KMC_CLIENT := /ammos/kmc-crypto-client/lib/python$(PYTHON_VERSION)/site-packages
 #!----- End of User Configuration -----!#
 
+LD_PRELOAD := /usr/lib64/libcrypto.so.1.1
 
 ## Useful for debugging makefile
 #.SHELLFLAGS = -vc
@@ -58,16 +59,15 @@ AIT_CONFIG := ./$(project_name)/config/$(CONFIG)
 #--------- Important Targets -------------#
 server: virtual-env
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
+	ait-server&
 
 shell: virtual-env AIT-Core
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash
+	bash
 
 nofork: virtual-env AIT-Core AIT-Project
-#	until nc -vzw 2 fss 43000; do sleep 2; done
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-with-variables ait-server
+	traceback-with-variables ait-server
 
 sadb-auth:
 	$(MAKE) -C ./sql_scripts auth-db
@@ -156,9 +156,9 @@ endif
 
 virtual-env: conda
 	conda create -y -q --name $(project_name) python=$(PYTHON_VERSION) pytest pytest-cov cffi > /dev/null || true
-	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables influxdb > /dev/null	
+	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables influxdb > /dev/null
 	$(CONDA_ACTIVATE)  && \
-	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=$(AIT_CONFIG) > /dev/null
+	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=$(AIT_CONFIG) LD_PRELOAD=$(LD_PRELOAD)> /dev/null
 
 ifdef DEV
 ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
