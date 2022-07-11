@@ -5,7 +5,6 @@ AIT_CORE_URL = git@github.com:Mejiro-McQueen/AIT-Core.git
 AIT_GUI_URL =  git@github.com:Mejiro-McQueen/AIT-GUI.git 
 AIT_DSN_URL =  git@github.com:Mejiro-McQueen/AIT-DSN.git 
 
-
 ## Choose a branch for each component 
 AIT_CORE_BRANCH := master
 AIT_GUI_BRANCH := master
@@ -29,6 +28,7 @@ PYTHON_VERSION = 3.8
 KMC_CLIENT := /ammos/kmc-crypto-client/lib/python$(PYTHON_VERSION)/site-packages
 #!----- End of User Configuration -----!#
 
+LD_PRELOAD := /usr/lib64/libcrypto.so.1.1
 
 ## Useful for debugging makefile
 #.SHELLFLAGS = -vc
@@ -58,16 +58,15 @@ AIT_CONFIG := ./$(project_name)/config/$(CONFIG)
 #--------- Important Targets -------------#
 server: virtual-env
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 ait-server&
+	ait-server&
 
 shell: virtual-env AIT-Core
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 bash
+	bash
 
 nofork: virtual-env AIT-Core AIT-Project
-#	until nc -vzw 2 fss 43000; do sleep 2; done
 	$(CONDA_ACTIVATE)&& \
-	LD_PRELOAD=/usr/lib64/libcrypto.so.1.1 traceback-with-variables ait-server
+	traceback-with-variables ait-server
 
 sadb-auth:
 	$(MAKE) -C ./sql_scripts auth-db
@@ -78,6 +77,14 @@ sadb-enc:
 sadb-clean:
 	$(MAKE) -C ./sql_scripts clean
 
+submodules:
+	git submodule add $(AIT_CORE_URL) || true
+	git submodule add $(AIT_DSN_URL) || true
+	git submodule add $(AIT_GUI_URL) || true
+	git submodule add $(PROJECT_URL) || true
+	git submodule init
+	git submodule update
+
 clean: 
 	pkill ait-server || true
 	conda env remove --name $(project_name) &> /dev/null || true 
@@ -85,24 +92,10 @@ clean:
 
 #--------- AUX TARGETS -------------#
 AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
-ifdef PROJECT_URL
-	 test ! -d $(project_name) && git clone -q --branch $(PROJECT_BRANCH) $(PROJECT_URL) || true
-
-ifeq ($(BRANCH_SWITCH), True)
-	 cd $(project_name) && git checkout $(PROJECT_BRANCH)
-endif
-
 	 $(CONDA_ACTIVATE) && pip install -q -q ./$(project_name)
-endif
 
 
 AIT-Core: virtual-env
-	 test ! -d $@ && git clone -q --branch $(AIT_CORE_BRANCH) $(AIT_CORE_URL) || true
-
-ifeq ($(BRANCH_SWITCH), True)
-	 cd $@ && git checkout $(AIT_CORE_BRANCH)
-endif
-
 ifndef DEV
 	 $(CONDA_ACTIVATE) && pip install -q -q ./$@
 endif
@@ -122,26 +115,10 @@ endif
 
 
 AIT-DSN: virtual-env AIT-Core
-ifdef AIT_DSN_URL
-	test ! -d $@ && git clone -q --branch $(AIT_DSN_BRANCH) $(AIT_DSN_URL) || true
-
-ifeq ($(BRANCH_SWITCH), True)
-	 cd $@ && git checkout $(AIT_DSN_BRANCH)
-endif 
-
 	$(CONDA_ACTIVATE) && pip install -q -q ./$@
-endif 
 
 AIT-GUI: virtual-env AIT-Core
-ifdef AIT_GUI_URL
-	test ! -d $@ && git clone -q --branch $(AIT_GUI_BRANCH) $(AIT_GUI_URL) || true
-
-ifeq ($(BRANCH_SWITCH), True)
-	 cd $@ && git checkout $(AIT_GUI_BRANCH)
-endif
-
 	 $(CONDA_ACTIVATE) && pip install -q -q ./$@
-endif
 
 
 conda:
@@ -156,9 +133,9 @@ endif
 
 virtual-env: conda
 	conda create -y -q --name $(project_name) python=$(PYTHON_VERSION) pytest pytest-cov cffi > /dev/null || true
-	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables influxdb > /dev/null	
+	conda install -y -q -c conda-forge --name $(project_name) traceback-with-variables influxdb > /dev/null
 	$(CONDA_ACTIVATE)  && \
-	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=$(AIT_CONFIG) > /dev/null
+	conda env config vars set PYTHONPATH=$(PYTHONPATH) AIT_ROOT=./AIT-Core AIT_CONFIG=$(AIT_CONFIG) LD_PRELOAD=$(LD_PRELOAD)> /dev/null
 
 ifdef DEV
 ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
@@ -168,8 +145,6 @@ ifeq ($(shell command -v  poetry 2>&1 /dev/null),)
 endif
 	conda install -y -q -c conda-forge --name $(project_name) poetry mypy flake8 > /dev/null
 endif
-
-
 
 #----------------- Convenience Targets (May be deleted soon)-------------#
 touch-paths: AIT-Core AIT-Project
@@ -185,17 +160,9 @@ stop_sims:
 	cd /opt/sunrise/ && ./shutdownGse.sh
 	cd /mnt/fsw/ && ./shutdown.sh
 
-interactive: server start_sims
+interactive: server
 	echo "Starting AIT Server and Sims!"
 	xdg-open http://localhost:8080
-
-kmc_interactive: kmc_nofork start_sims
-	echo "Starting AIT Server and Sims!"
-	xdg-open http://localhost:8080
-
-start_sim_tunnel:
-	until nc -vzw 2 fss 22; do sleep 2; done
-	ssh -v -i /home/ec2-user/.ssh/AIT.pem -g -R fss:42401:localhost:42401 -fN ubuntu@fss
 
 open-port:
 ifneq ($(AWS), ec2)
