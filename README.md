@@ -21,6 +21,11 @@ This script is a collection of Makefiles in three layers.
 - python
   + pyjks (for key-dump target, not run by default for convenience)
     
+# Configuration and Initialization 
+
+1. Modify the top level of the makefile to set AIT and project adaptation urls
+2. run `make submodules` to add and initalize AIT components as submodules
+
 # Production Deployment
 
 Within the repo, run `make`.
@@ -87,9 +92,6 @@ You can now restart the EC2 instance or start ait-server by running run `make` a
 | ???? | UDP/TCP | Customizable AIT ports |
 
 # FAQ 
-**Q: Why not just use git subtree/module?**
-
-**A:** Good question, I often ask myself every day. git subtree comming soon!
 
 **Q: Why not just use GUIX or NIX?**
 
@@ -99,17 +101,17 @@ You can now restart the EC2 instance or start ait-server by running run `make` a
 
 **A:** Pretty much any, unless you're running KMC, in which case you need a RHEL8.5 compatible distro (Alma, Rocky, etc...)
 
-**Q: There seems to be a kernel lock in the RPM.**
+**Q: There seems to be a kernel lock in the KMC RPM.**
 
-**A:** I know. 
+**A:** Unfortunately. 
 
 **Q: Can I run AIT+KMC-Crypto-Client in a RHEL8 Docker container?**
 
-**A:** No. Kernel lock.
+**A:** No. RPM Kernel lock.
 
 **Q: Can the MariaDB be hosted on a third machine?**
 
-**A:** Yes. You'll need to modify the sql scripts to point to your box.
+**A:** Yes. You'll need to modify the sql scripts to point to that box.
 
 **Q: My AIT+KMC hangs for a long time when initializing the encrypter plugin, then gives me a 503 authentication error!**
 
