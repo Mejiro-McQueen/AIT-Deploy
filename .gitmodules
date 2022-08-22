@@ -1,0 +1,9 @@
+[submodule "AIT-Core"]
+	path = AIT-Core
+	url = git@github.com:Mejiro-McQueen/AIT-Core.git
+[submodule "AIT-DSN"]
+	path = AIT-DSN
+	url = git@github.com:Mejiro-McQueen/AIT-DSN.git
+[submodule "AIT-GUI"]
+	path = AIT-GUI
+	url = git@github.com:Mejiro-McQueen/AIT-GUI.git
