@@ -2,12 +2,10 @@
 PROJECT_URL = git@github.jpl.nasa.gov:SunRISE-Ops/SunRISE-AIT.git
 MINICONDA_URL = https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 AIT_CORE_URL = git@github.com:Mejiro-McQueen/AIT-Core.git 
-AIT_GUI_URL =  git@github.com:Mejiro-McQueen/AIT-GUI.git 
 AIT_DSN_URL =  git@github.com:Mejiro-McQueen/AIT-DSN.git 
 
 ## Choose a branch for each component 
 AIT_CORE_BRANCH := master
-AIT_GUI_BRANCH := master
 AIT_DSN_BRANCH := master
 PROJECT_BRANCH := develop
 
@@ -80,7 +78,6 @@ sadb-clean:
 submodules:
 	git submodule add $(AIT_CORE_URL) || true
 	git submodule add $(AIT_DSN_URL) || true
-	git submodule add $(AIT_GUI_URL) || true
 	git submodule add $(PROJECT_URL) || true
 	git submodule init
 	git submodule update
@@ -91,7 +88,7 @@ clean:
 	conda env remove --name AIT-Core &> /dev/null || true
 
 #--------- AUX TARGETS -------------#
-AIT-Project: virtual-env AIT-DSN AIT-GUI AIT-Core
+AIT-Project: virtual-env AIT-DSN AIT-Core
 	 $(CONDA_ACTIVATE) && pip install -q -q ./$(project_name)
 
 
@@ -116,10 +113,6 @@ endif
 
 AIT-DSN: virtual-env AIT-Core
 	$(CONDA_ACTIVATE) && pip install -q -q ./$@
-
-AIT-GUI: virtual-env AIT-Core
-	 $(CONDA_ACTIVATE) && pip install -q -q ./$@
-
 
 conda:
 ifeq ($(shell command -v conda 2>&1 /dev/null),)
